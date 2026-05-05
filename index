@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quanti Contatti</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0f1e;
+    --card: #111827;
+    --card2: #1a2235;
+    --border: #1e2d45;
+    --tg: #29a8e2;
+    --wa: #25d366;
+    --sig: #3a76f0;
+    --phone: #f59e0b;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --accent: #38bdf8;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    padding: 0 0 100px;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  header {
+    background: linear-gradient(135deg, #0d1b35 0%, #111827 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 20px 16px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--accent);
+  }
+
+  header p { font-size: 0.7rem; color: var(--muted); margin-top: 2px; }
+
+  .total-block {
+    margin: 24px 20px 0;
+    background: linear-gradient(135deg, #0f2040 0%, #162035 100%);
+    border: 1px solid #1e3a5f;
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .total-block::before {
+    content: '';
+    position: absolute;
+    top: -40px; left: -40px;
+    width: 180px; height: 180px;
+    background: radial-gradient(circle, #38bdf820 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .total-number {
+    font-family: 'Syne', sans-serif;
+    font-size: 3.5rem;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+    letter-spacing: -0.04em;
+  }
+
+  .total-label {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .last-update { font-size: 0.65rem; color: var(--muted); margin-top: 8px; }
+
+  .platform-grid {
+    display: grid;
+    gap: 12px;
+    margin: 20px 20px 0;
+  }
+
+  .platform-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 18px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card-top {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .platform-icon {
+    width: 44px; height: 44px;
+    border-radius: 11px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+  }
+
+  .tg-icon  { background: #1a3a52; }
+  .wa-icon  { background: #1a3d2a; }
+  .sig-icon { background: #1a2a52; }
+  .ph-icon  { background: #2a2010; }
+
+  .platform-meta { flex: 1; }
+
+  .platform-name {
+    font-size: 0.68rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .platform-count {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.7rem;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+
+  .tg-count  { color: var(--tg); }
+  .wa-count  { color: var(--wa); }
+  .sig-count { color: var(--sig); }
+  .ph-count  { color: var(--phone); }
+
+  .pct-block { text-align: right; flex-shrink: 0; }
+
+  .pct-big {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .tg-pct  { color: var(--tg); }
+  .wa-pct  { color: var(--wa); }
+  .sig-pct { color: var(--sig); }
+
+  .pct-sub { font-size: 0.58rem; color: var(--muted); margin-top: 2px; }
+
+  .pct-bar-track {
+    margin-top: 10px;
+    height: 5px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .pct-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 0.6s cubic-bezier(.4,0,.2,1);
+  }
+
+  .tg-fill  { background: var(--tg); }
+  .wa-fill  { background: var(--wa); }
+  .sig-fill { background: var(--sig); }
+
+  .hint-strip {
+    margin-top: 10px;
+    background: var(--card2);
+    border-radius: 8px;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .hint-text {
+    font-size: 0.62rem;
+    color: var(--muted);
+    line-height: 1.45;
+    flex: 1;
+  }
+
+  .hint-text strong { color: var(--text); }
+
+  .open-app-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    padding: 5px 10px;
+    cursor: pointer;
+    white-space: nowrap;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+
+  .open-app-btn:hover { color: var(--text); border-color: var(--accent); }
+
+  .fab {
+    position: fixed;
+    bottom: 28px; right: 20px;
+    background: linear-gradient(135deg, #1e3a5f, #0f2040);
+    border: 1px solid var(--accent);
+    border-radius: 50px;
+    color: var(--accent);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: 14px 22px;
+    cursor: pointer;
+    box-shadow: 0 4px 24px #38bdf830;
+    transition: all 0.15s;
+    z-index: 50;
+  }
+
+  .fab:active { transform: scale(0.95); }
+
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: #000b;
+    z-index: 100;
+    display: flex; align-items: flex-end;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.2s;
+  }
+
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+  .modal {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px 20px 0 0;
+    padding: 24px 20px 44px;
+    width: 100%;
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(.4,0,.2,1);
+    position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .modal-overlay.open .modal { transform: translateY(0); }
+
+  .modal h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.1rem;
+    margin-bottom: 6px;
+    color: var(--accent);
+  }
+
+  .modal-sub {
+    font-size: 0.68rem;
+    color: var(--muted);
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+
+  .close-btn {
+    position: absolute;
+    top: 20px; right: 20px;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 1.3rem;
+    cursor: pointer;
+    padding: 4px;
+  }
+
+  .input-section { margin-bottom: 18px; }
+
+  .input-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+
+  .input-icon {
+    width: 28px; height: 28px;
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  .input-platform-name {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text);
+    flex: 1;
+  }
+
+  .input-app-link {
+    font-size: 0.62rem;
+    color: var(--accent);
+    text-decoration: none;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 8px;
+  }
+
+  .input-where {
+    font-size: 0.62rem;
+    color: var(--muted);
+    margin-bottom: 6px;
+    line-height: 1.5;
+    padding-left: 36px;
+  }
+
+  .input-where strong { color: var(--text); }
+
+  .input-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-left: 36px;
+  }
+
+  .num-input {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 1.1rem;
+    padding: 10px 14px;
+    outline: none;
+    transition: border-color 0.15s;
+    -moz-appearance: textfield;
+  }
+
+  .num-input::-webkit-outer-spin-button,
+  .num-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .num-input:focus { border-color: var(--accent); }
+
+  .import-small-btn {
+    background: var(--bg);
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    color: var(--phone);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    padding: 10px 10px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s;
+  }
+
+  .import-small-btn:hover { border-color: var(--phone); }
+
+  .divider { border: none; border-top: 1px solid var(--border); margin: 18px 0; }
+
+  .save-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #1e3a5f, #0f2040);
+    border: 1px solid var(--accent);
+    border-radius: 10px;
+    color: var(--accent);
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 14px;
+    cursor: pointer;
+    margin-top: 4px;
+    transition: all 0.15s;
+  }
+
+  .save-btn:active { opacity: 0.8; transform: scale(0.99); }
+
+  .section-title {
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin: 28px 20px 12px;
+  }
+
+  .history-list {
+    margin: 0 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .history-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .history-date { font-size: 0.7rem; color: var(--muted); }
+  .history-total { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; color: var(--accent); }
+  .history-detail { font-size: 0.62rem; color: var(--muted); margin-top: 2px; text-align: right; }
+  .history-delta { font-size: 0.65rem; margin-top: 2px; }
+  .delta-pos { color: #4ade80; }
+  .delta-neg { color: #f87171; }
+
+  .empty-history {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.75rem;
+    padding: 24px;
+    line-height: 1.6;
+  }
+
+  .picker-note {
+    font-size: 0.62rem;
+    padding-left: 36px;
+    margin-top: 4px;
+    min-height: 16px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Quanti Contatti</h1>
+  <p>contacten tracker</p>
+</header>
+
+<div class="total-block">
+  <div class="total-number" id="totalNum">—</div>
+  <div class="total-label">totaal (Telegram + WhatsApp + Signal)</div>
+  <div class="last-update" id="lastUpdate">nog geen meting</div>
+</div>
+
+<div class="platform-grid">
+
+  <!-- Telefoon -->
+  <div class="platform-card">
+    <div class="card-top">
+      <div class="platform-icon ph-icon">📱</div>
+      <div class="platform-meta">
+        <div class="platform-name">Telefoon contacten</div>
+        <div class="platform-count ph-count" id="phCount">—</div>
+      </div>
+    </div>
+    <div class="hint-strip">
+      <div class="hint-text">Dit is de basis voor alle percentages. Druk op <strong>Importeer</strong> om automatisch te tellen.</div>
+      <button class="open-app-btn" id="importPhoneBtn">📋 Importeer</button>
+    </div>
+  </div>
+
+  <!-- Telegram -->
+  <div class="platform-card">
+    <div class="card-top">
+      <div class="platform-icon tg-icon">✈️</div>
+      <div class="platform-meta">
+        <div class="platform-name">Telegram</div>
+        <div class="platform-count tg-count" id="tgCount">—</div>
+      </div>
+      <div class="pct-block">
+        <div class="pct-big tg-pct" id="tgPct">—</div>
+        <div class="pct-sub">van telefoon</div>
+      </div>
+    </div>
+    <div class="pct-bar-track"><div class="pct-bar-fill tg-fill" id="tgBar" style="width:0%"></div></div>
+    <div class="hint-strip" style="margin-top:10px">
+      <div class="hint-text">Ga naar <strong>Contacten</strong> (onderin) en tel het aantal.</div>
+      <a class="open-app-btn" href="tg://" target="_blank">Open ↗</a>
+    </div>
+  </div>
+
+  <!-- WhatsApp -->
+  <div class="platform-card">
+    <div class="card-top">
+      <div class="platform-icon wa-icon">💬</div>
+      <div class="platform-meta">
+        <div class="platform-name">WhatsApp</div>
+        <div class="platform-count wa-count" id="waCount">—</div>
+      </div>
+      <div class="pct-block">
+        <div class="pct-big wa-pct" id="waPct">—</div>
+        <div class="pct-sub">van telefoon</div>
+      </div>
+    </div>
+    <div class="pct-bar-track"><div class="pct-bar-fill wa-fill" id="waBar" style="width:0%"></div></div>
+    <div class="hint-strip" style="margin-top:10px">
+      <div class="hint-text">Tik op <strong>Nieuw gesprek</strong> (potlood rechtsboven) → totaal staat bovenaan de lijst.</div>
+      <a class="open-app-btn" href="whatsapp://" target="_blank">Open ↗</a>
+    </div>
+  </div>
+
+  <!-- Signal -->
+  <div class="platform-card">
+    <div class="card-top">
+      <div class="platform-icon sig-icon">🔒</div>
+      <div class="platform-meta">
+        <div class="platform-name">Signal</div>
+        <div class="platform-count sig-count" id="sigCount">—</div>
+      </div>
+      <div class="pct-block">
+        <div class="pct-big sig-pct" id="sigPct">—</div>
+        <div class="pct-sub">van telefoon</div>
+      </div>
+    </div>
+    <div class="pct-bar-track"><div class="pct-bar-fill sig-fill" id="sigBar" style="width:0%"></div></div>
+    <div class="hint-strip" style="margin-top:10px">
+      <div class="hint-text">Tik op het <strong>potlood-icoon</strong> (nieuw bericht) → bovenaan staat <strong>"X Signal-contacten"</strong>.</div>
+      <a class="open-app-btn" href="sgnl://" target="_blank">Open ↗</a>
+    </div>
+  </div>
+
+</div>
+
+<div class="section-title">Geschiedenis</div>
+<div class="history-list" id="historyList">
+  <div class="empty-history">Nog geen metingen opgeslagen.<br>Druk op <strong style="color:var(--accent)">+ Nieuwe meting</strong> om te beginnen.</div>
+</div>
+
+<button class="fab" id="openModal">＋ Nieuwe meting</button>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <button class="close-btn" id="closeModal">✕</button>
+    <h2>Nieuwe meting</h2>
+    <div class="modal-sub">Open elke app en noteer het aantal contacten. Percentages worden berekend t.o.v. je telefooncontacten.</div>
+
+    <!-- Telefoon -->
+    <div class="input-section">
+      <div class="input-header">
+        <div class="input-icon ph-icon">📱</div>
+        <span class="input-platform-name">Telefoon contacten</span>
+      </div>
+      <div class="input-where">Druk op <strong>Importeer</strong> om automatisch te tellen via je contactenlijst.</div>
+      <div class="input-row">
+        <input class="num-input" type="number" id="inPhone" placeholder="bijv. 450" min="0">
+        <button class="import-small-btn" id="importContactsBtn">📋 Importeer</button>
+      </div>
+      <div class="picker-note" id="pickerNote"></div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Telegram -->
+    <div class="input-section">
+      <div class="input-header">
+        <div class="input-icon tg-icon">✈️</div>
+        <span class="input-platform-name">Telegram</span>
+        <a class="input-app-link" href="tg://" target="_blank">Open app ↗</a>
+      </div>
+      <div class="input-where">Ga naar <strong>Contacten</strong> (onderin) en tel het aantal, of kijk bij <strong>Instellingen → Privacy → Contacten</strong>.</div>
+      <div class="input-row">
+        <input class="num-input" type="number" id="inTg" placeholder="bijv. 52" min="0">
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- WhatsApp -->
+    <div class="input-section">
+      <div class="input-header">
+        <div class="input-icon wa-icon">💬</div>
+        <span class="input-platform-name">WhatsApp</span>
+        <a class="input-app-link" href="whatsapp://" target="_blank">Open app ↗</a>
+      </div>
+      <div class="input-where">Tik op <strong>Nieuw gesprek</strong> (potlood rechtsboven) → het totaal staat bovenaan de contactenlijst.</div>
+      <div class="input-row">
+        <input class="num-input" type="number" id="inWa" placeholder="bijv. 180" min="0">
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Signal -->
+    <div class="input-section">
+      <div class="input-header">
+        <div class="input-icon sig-icon">🔒</div>
+        <span class="input-platform-name">Signal</span>
+        <a class="input-app-link" href="sgnl://" target="_blank">Open app ↗</a>
+      </div>
+      <div class="input-where">Tik op het <strong>potlood-icoon</strong> (nieuw bericht) → bovenaan staat <strong>"X Signal-contacten"</strong>.</div>
+      <div class="input-row">
+        <input class="num-input" type="number" id="inSig" placeholder="bijv. 30" min="0">
+      </div>
+    </div>
+
+    <button class="save-btn" id="saveBtn">💾 Opslaan</button>
+  </div>
+</div>
+
+<script>
+  var STORAGE_KEY = 'quantiContatti_v2';
+
+  function loadHistory() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+    catch(e) { return []; }
+  }
+
+  function saveHistory(h) { localStorage.setItem(STORAGE_KEY, JSON.stringify(h)); }
+
+  function formatDate(ts) {
+    return new Date(ts).toLocaleDateString('nl-NL', {
+      day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'
+    });
+  }
+
+  function calcPct(val, base) {
+    if (!base || !val) return null;
+    return Math.round(val / base * 100);
+  }
+
+  function renderDashboard(entry) {
+    if (!entry) return;
+    var ph  = entry.phone || 0;
+    var tg  = entry.tg    || 0;
+    var wa  = entry.wa    || 0;
+    var sig = entry.sig   || 0;
+    var total = tg + wa + sig;
+
+    document.getElementById('totalNum').textContent  = total.toLocaleString('nl-NL');
+    document.getElementById('lastUpdate').textContent = 'bijgewerkt: ' + formatDate(entry.ts);
+    document.getElementById('phCount').textContent   = ph  ? ph.toLocaleString('nl-NL')  : '—';
+    document.getElementById('tgCount').textContent   = tg  ? tg.toLocaleString('nl-NL')  : '—';
+    document.getElementById('waCount').textContent   = wa  ? wa.toLocaleString('nl-NL')  : '—';
+    document.getElementById('sigCount').textContent  = sig ? sig.toLocaleString('nl-NL') : '—';
+
+    var platforms = [{id:'tg',val:tg},{id:'wa',val:wa},{id:'sig',val:sig}];
+    platforms.forEach(function(p) {
+      var pv = calcPct(p.val, ph);
+      document.getElementById(p.id+'Pct').textContent = pv !== null ? pv + '%' : '—';
+      document.getElementById(p.id+'Bar').style.width  = pv !== null ? Math.min(pv, 100) + '%' : '0%';
+    });
+  }
+
+  function renderHistory(history) {
+    var list = document.getElementById('historyList');
+    if (!history.length) {
+      list.innerHTML = '<div class="empty-history">Nog geen metingen opgeslagen.<br>Druk op <strong style="color:var(--accent)">+ Nieuwe meting</strong> om te beginnen.</div>';
+      return;
+    }
+    var html = '';
+    for (var i = history.length - 1; i >= 0; i--) {
+      var e = history[i];
+      var total = (e.tg||0) + (e.wa||0) + (e.sig||0);
+      var ph = e.phone || 0;
+      var deltaHtml = '';
+      if (i > 0) {
+        var prev = history[i-1];
+        var prevTotal = (prev.tg||0) + (prev.wa||0) + (prev.sig||0);
+        var diff = total - prevTotal;
+        if (diff > 0)      deltaHtml = '<div class="history-delta delta-pos">▲ +' + diff + ' contacten</div>';
+        else if (diff < 0) deltaHtml = '<div class="history-delta delta-neg">▼ ' + diff + ' contacten</div>';
+        else               deltaHtml = '<div class="history-delta" style="color:var(--muted)">= geen wijziging</div>';
+      }
+      var tgP  = ph ? Math.round((e.tg||0)/ph*100)+'%'  : '—';
+      var waP  = ph ? Math.round((e.wa||0)/ph*100)+'%'  : '—';
+      var sigP = ph ? Math.round((e.sig||0)/ph*100)+'%' : '—';
+
+      html += '<div class="history-item">';
+      html += '<div><div class="history-date">' + formatDate(e.ts) + '</div>' + deltaHtml + '</div>';
+      html += '<div>';
+      html += '<div class="history-total">' + total.toLocaleString('nl-NL') + '</div>';
+      html += '<div class="history-detail">✈️' + (e.tg||0) + ' (' + tgP + ')&nbsp; 💬' + (e.wa||0) + ' (' + waP + ')&nbsp; 🔒' + (e.sig||0) + ' (' + sigP + ')</div>';
+      if (ph) html += '<div class="history-detail" style="color:var(--phone)">📱 ' + ph + ' telefoon</div>';
+      html += '</div></div>';
+    }
+    list.innerHTML = html;
+  }
+
+  function init() {
+    var history = loadHistory();
+    if (history.length) renderDashboard(history[history.length-1]);
+    renderHistory(history);
+  }
+
+  var overlay = document.getElementById('modalOverlay');
+  document.getElementById('openModal').addEventListener('click', function() { overlay.classList.add('open'); });
+  document.getElementById('closeModal').addEventListener('click', function() { overlay.classList.remove('open'); });
+  overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.classList.remove('open'); });
+
+  function doContactPicker() {
+    var note = document.getElementById('pickerNote');
+    if (!('contacts' in navigator && 'ContactsManager' in window)) {
+      note.textContent = '⚠️ Niet beschikbaar in deze browser. Voer het getal handmatig in.';
+      note.style.color = '#f87171';
+      return;
+    }
+    navigator.contacts.select(['name'], {multiple: true}).then(function(contacts) {
+      document.getElementById('inPhone').value = contacts.length;
+      note.textContent = '✓ ' + contacts.length + ' contacten gevonden';
+      note.style.color = '#4ade80';
+    }).catch(function() {
+      note.textContent = 'Geannuleerd.';
+      note.style.color = '#f87171';
+    });
+  }
+
+  document.getElementById('importContactsBtn').addEventListener('click', doContactPicker);
+  document.getElementById('importPhoneBtn').addEventListener('click', function() {
+    overlay.classList.add('open');
+    setTimeout(doContactPicker, 350);
+  });
+
+  document.getElementById('saveBtn').addEventListener('click', function() {
+    var phone = parseInt(document.getElementById('inPhone').value) || 0;
+    var tg    = parseInt(document.getElementById('inTg').value)    || 0;
+    var wa    = parseInt(document.getElementById('inWa').value)    || 0;
+    var sig   = parseInt(document.getElementById('inSig').value)   || 0;
+
+    if (!phone && !tg && !wa && !sig) { alert('Vul minimaal één getal in.'); return; }
+
+    var history = loadHistory();
+    history.push({ ts: Date.now(), phone: phone, tg: tg, wa: wa, sig: sig });
+    saveHistory(history);
+    renderDashboard(history[history.length-1]);
+    renderHistory(history);
+
+    ['inPhone','inTg','inWa','inSig'].forEach(function(id) { document.getElementById(id).value = ''; });
+    document.getElementById('pickerNote').textContent = '';
+    overlay.classList.remove('open');
+  });
+
+  init();
+</script>
+</body>
+</html>
